@@ -1,8 +1,11 @@
 import {
   ArrowDown,
   ArrowRight,
+  BadgeCheck,
   BedDouble,
+  CigaretteOff,
   Clock3,
+  IdCard,
   Images,
   MapPin,
   MessageCircle,
@@ -10,7 +13,9 @@ import {
   Play,
   Quote,
   Star,
+  UtensilsCrossed,
   Users,
+  WineOff,
 } from 'lucide-react'
 import { useState } from 'react'
 import Header from './components/Header'
@@ -120,11 +125,15 @@ function Rooms() {
                 <h3>{room.name}</h3>
                 <p>{room.description}</p>
                 <ul>{room.amenities.map((item) => <li key={item}>{item}</li>)}</ul>
-                <a href="#booking" className="room-link">Check this room <ArrowRight size={16} /></a>
+                <div className="room-booking-row">
+                  <div className="room-rate"><span>From</span><strong>{room.price}</strong><small>/ night</small></div>
+                  <a href="#booking" className="room-book-button">Book now <ArrowRight size={15} /></a>
+                </div>
               </div>
             </article>
           ))}
         </div>
+        <p className="room-price-note">Starting rates are per room, per night. Taxes and festival-date pricing may vary; the hotel will confirm the final amount before booking.</p>
       </div>
     </section>
   )
@@ -151,12 +160,44 @@ function Facilities() {
   )
 }
 
+function Policies() {
+  const policies = [
+    { icon: UtensilsCrossed, title: 'Pure vegetarian property', copy: 'Non-vegetarian food is not permitted anywhere inside the hotel.' },
+    { icon: WineOff, title: 'No alcohol inside', copy: 'Alcohol consumption is not allowed in rooms or anywhere on hotel premises.' },
+    { icon: CigaretteOff, title: 'Non-smoking rooms', copy: 'Smoking is not allowed inside guest rooms or indoor common areas.' },
+    { icon: IdCard, title: 'Valid ID required', copy: 'Every adult guest must present a valid government photo ID at check-in.' },
+    { icon: Clock3, title: 'Check-in & check-out', copy: 'Check-in from 12:00 PM and check-out by 11:00 AM. Early or late requests depend on availability.' },
+    { icon: BadgeCheck, title: 'Registered guests only', copy: 'Visitors and additional guests must be registered with reception before entering guest areas.' },
+  ]
+
+  return (
+    <section className="policies-section" id="policies">
+      <div className="section-shell">
+        <SectionHeading eyebrow="Good to know" title="Simple policies for a peaceful stay." copy="Please review these house rules before arrival so every guest can enjoy a comfortable, respectful stay." align="center" />
+        <div className="policy-grid">
+          {policies.map(({ icon: Icon, title, copy }) => (
+            <article className="policy-card" key={title}>
+              <span><Icon size={22} strokeWidth={1.6} /></span>
+              <div><h3>{title}</h3><p>{copy}</p></div>
+            </article>
+          ))}
+        </div>
+        <p className="policy-note">Alcohol may be consumed only outside the hotel property. Please contact reception if you have any questions before booking.</p>
+      </div>
+    </section>
+  )
+}
+
 function Ayodhya() {
   const [selectedPlace, setSelectedPlace] = useState(null)
   const places = [
-    { number: '01', name: 'Shri Ram Mandir', time: 'A sacred centre of Ayodhya', destination: 'Shri Ram Janmabhoomi Mandir, Ayodhya' },
-    { number: '02', name: 'Hanuman Garhi', time: 'Historic hilltop temple', destination: 'Hanuman Garhi Mandir, Ayodhya' },
-    { number: '03', name: 'Saryu Ghat', time: 'Approx. 6.9 km · 18 min by car', destination: 'Saryu Ghat Ayodhya, Naya Ghat, Ayodhya, Uttar Pradesh 224123', distance: '6.9 km', driveTime: 'about 18 min by car' },
+    { number: '01', name: 'Jai Mata Di Temple', time: 'Approx. 0.9 km from hotel', destination: 'Jai Mata Di Temple, Ayodhya', distance: '0.9 km', driveTime: 'a very short local ride' },
+    { number: '02', name: 'Durga Mandir', time: 'Approx. 1.8 km from hotel', destination: 'Durga Mandir, Ayodhya', distance: '1.8 km', driveTime: 'a short local ride' },
+    { number: '03', name: 'Shri Ram Mandir', time: 'Approx. 2.7 km from hotel', destination: 'Shri Ram Janmabhoomi Mandir, Ayodhya', distance: '2.7 km', driveTime: 'check the live road route' },
+    { number: '04', name: 'Hanuman Garhi', time: 'Historic hilltop temple · live route', destination: 'Hanuman Garhi Mandir, Ayodhya' },
+    { number: '05', name: 'Kanak Bhawan', time: 'Sacred palace temple · live route', destination: 'Kanak Bhawan, Ayodhya' },
+    { number: '06', name: 'Saryu Ghat', time: 'Approx. 6.9 km by the fastest road route', destination: 'Saryu Ghat Ayodhya, Naya Ghat, Ayodhya, Uttar Pradesh 224123', distance: '6.9 km', driveTime: 'about 18 min by car' },
+    { number: '07', name: 'Ayodhya Airport', time: 'Approx. 4.2 km from hotel', destination: 'Maharishi Valmiki International Airport Ayodhya Dham', distance: '4.2 km', driveTime: 'check the live road route' },
   ]
 
   return (
@@ -185,7 +226,7 @@ function Ayodhya() {
               </div>
               {selectedPlace.distance && (
                 <div className="route-distance">
-                  <span><small>Approx. road distance</small><strong>{selectedPlace.distance}</strong></span>
+                  <span><small>Approx. distance</small><strong>{selectedPlace.distance}</strong></span>
                   <span><small>Typical fastest drive</small><strong>{selectedPlace.driveTime}</strong></span>
                 </div>
               )}
@@ -266,6 +307,7 @@ export default function App() {
       <Story />
       <Rooms />
       <Facilities />
+      <Policies />
       <Gallery />
       <Ayodhya />
       <Reviews />
