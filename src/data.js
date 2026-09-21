@@ -38,7 +38,7 @@ export const rooms = [
     srcSet: '/assets/optimized/awadh-shree-palace-family-room-480.webp 480w, /assets/optimized/awadh-shree-palace-family-room-800.webp 800w, /assets/optimized/awadh-shree-palace-family-room-1122.webp 1122w',
     width: 1122,
     height: 1402,
-    guests: 'Up to 4 guests',
+    guests: 'Up to 6 guests',
     bed: '2 queen beds',
     price: '₹2,499',
     description: 'Generous space and two comfortable beds, made for families travelling together.',

@@ -55,6 +55,7 @@ export default function BookingBar() {
               <option>2 Adults, 2 Children</option>
               <option>4 Adults</option>
               <option>5 Guests</option>
+              <option>6 Guests</option>
             </select>
             <ChevronDown size={16} />
           </span>
