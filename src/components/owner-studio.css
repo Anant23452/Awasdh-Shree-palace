@@ -1,0 +1,82 @@
+.owner-overlay { position: fixed; z-index: 200; inset: 0; display: flex; justify-content: flex-end; background: rgba(25, 8, 12, .72); backdrop-filter: blur(5px); }
+.owner-studio { width: min(680px, 100%); height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: #fbf8f1; color: #2f2927; box-shadow: -28px 0 80px rgba(22, 5, 10, .28); animation: owner-slide .28s ease both; }
+@keyframes owner-slide { from { transform: translateX(35px); opacity: 0; } }
+.owner-header { min-height: 82px; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e7dfd3; background: #fffdf8; }
+.owner-title { display: flex; align-items: center; gap: 13px; }
+.owner-title > span { width: 42px; height: 42px; display: grid; place-items: center; background: #64192d; color: #f0cf8e; }
+.owner-title > div { display: flex; flex-direction: column; gap: 2px; }
+.owner-title small, .owner-eyebrow { color: #a27b3f; font-size: 9px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.owner-title strong { color: #64192d; font-family: var(--serif); font-size: 22px; }
+.owner-icon-button { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid #e3d9ca; background: transparent; color: #64192d; cursor: pointer; }
+.owner-login { width: min(440px, calc(100% - 40px)); margin: auto; padding: 42px; background: #fff; border: 1px solid #e7dfd3; box-shadow: 0 24px 70px rgba(69, 38, 28, .09); }
+.owner-login-icon { width: 58px; height: 58px; display: grid; place-items: center; margin-bottom: 26px; background: #f5ead8; color: #64192d; border-radius: 50%; }
+.owner-login h2, .owner-panel h2 { margin: 8px 0 12px; color: #64192d; font-family: var(--serif); font-size: 35px; line-height: 1.08; }
+.owner-login > p:not(.owner-eyebrow), .owner-panel section > p:not(.owner-eyebrow) { color: #746c68; font-size: 12px; line-height: 1.7; }
+.owner-login form { margin-top: 27px; display: flex; flex-direction: column; gap: 10px; }
+.owner-login label, .owner-feature-form label { color: #514844; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.owner-login input, .owner-feature-form input, .owner-feature-form textarea { width: 100%; margin-top: 7px; padding: 14px 15px; border: 1px solid #d9cfc1; border-radius: 0; outline: none; background: #fffdf8; color: #302927; font: inherit; font-size: 12px; }
+.owner-login input:focus, .owner-feature-form input:focus, .owner-feature-form textarea:focus, .owner-price-input:focus-within { border-color: #a27b3f; box-shadow: 0 0 0 3px rgba(162, 123, 63, .1); }
+.owner-primary { min-height: 47px; padding: 0 19px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 0; background: #64192d; color: white; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.owner-login .owner-primary { width: 100%; margin-top: 5px; }
+.owner-error { color: #a52d2d; font-size: 10px; }
+.owner-security-note { display: block; margin-top: 20px; color: #928985; font-size: 9px; line-height: 1.6; }
+.owner-workspace { min-height: 0; flex: 1; display: flex; flex-direction: column; }
+.owner-tabs { padding: 12px 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; border-bottom: 1px solid #e7dfd3; background: #f5efe5; }
+.owner-tabs button { min-height: 45px; padding: 0 10px; display: flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid transparent; background: transparent; color: #746c68; font-size: 9px; font-weight: 800; letter-spacing: .04em; cursor: pointer; }
+.owner-tabs button.active { border-color: #d9c7aa; background: #fff; color: #64192d; }
+.owner-panel { min-height: 0; flex: 1; padding: 30px; overflow-y: auto; }
+.owner-panel section > h2 { font-size: 32px; }
+.owner-price-list { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
+.owner-price-list > label { padding: 11px; display: grid; grid-template-columns: 70px 1fr 130px; align-items: center; gap: 14px; border: 1px solid #e2d9cc; background: white; }
+.owner-price-list img { width: 70px; height: 55px; object-fit: cover; }
+.owner-price-list > label > span { display: flex; flex-direction: column; gap: 4px; }
+.owner-price-list strong { color: #4a202a; font-family: var(--serif); font-size: 17px; }
+.owner-price-list small { color: #8a817d; font-size: 8px; text-transform: uppercase; letter-spacing: .07em; }
+.owner-price-input { height: 42px; padding: 0 11px; display: flex; align-items: center; border: 1px solid #d9cfc1; background: #fffdf8; color: #a27b3f; }
+.owner-price-input input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: #3e3330; font-weight: 700; }
+.owner-file-input { display: none; }
+.owner-upload { width: 100%; margin: 23px 0 17px; padding: 19px; display: flex; align-items: center; justify-content: center; gap: 12px; border: 1px dashed #b99b6a; background: #faf3e7; color: #64192d; cursor: pointer; }
+.owner-upload span { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.owner-upload strong { font-size: 11px; }
+.owner-upload small { color: #8a817d; font-size: 8px; }
+.owner-photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.owner-photo-grid figure { min-width: 0; margin: 0; background: white; border: 1px solid #e2d9cc; }
+.owner-photo-grid img { width: 100%; aspect-ratio: 1.25; object-fit: cover; display: block; }
+.owner-photo-grid figcaption { padding: 8px 9px; display: flex; align-items: center; justify-content: space-between; gap: 7px; color: #514844; font-size: 9px; }
+.owner-photo-grid figcaption span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.owner-photo-grid button, .owner-feature-list article > button { flex: 0 0 auto; width: 29px; height: 29px; display: grid; place-items: center; border: 0; background: #f5ece8; color: #9a3143; cursor: pointer; }
+.owner-text-button { margin-top: 16px; padding: 0; border: 0; border-bottom: 1px solid currentColor; background: none; color: #64192d; font-size: 9px; font-weight: 700; cursor: pointer; }
+.owner-feature-form { margin: 24px 0; padding: 20px; display: grid; grid-template-columns: 1fr 1.4fr auto; align-items: end; gap: 10px; border: 1px solid #e2d9cc; background: white; }
+.owner-feature-form textarea { resize: vertical; }
+.owner-feature-form button { min-height: 43px; padding: 0 14px; display: flex; align-items: center; gap: 6px; border: 0; background: #a27b3f; color: white; font-size: 9px; font-weight: 800; cursor: pointer; }
+.owner-feature-list { display: flex; flex-direction: column; gap: 7px; }
+.owner-feature-list article { padding: 12px; display: grid; grid-template-columns: 34px 1fr 32px; align-items: center; gap: 10px; border: 1px solid #e2d9cc; background: white; }
+.owner-feature-list article > span { width: 34px; height: 34px; display: grid; place-items: center; background: #f5ead8; color: #a27b3f; }
+.owner-feature-list article > div { display: flex; flex-direction: column; gap: 3px; }
+.owner-feature-list strong { color: #4a202a; font-size: 11px; }
+.owner-feature-list small { color: #817874; font-size: 9px; line-height: 1.45; }
+.owner-actions { min-height: 72px; padding: 11px 18px; display: flex; align-items: center; gap: 12px; border-top: 1px solid #e7dfd3; background: #fffdf8; }
+.owner-actions .owner-primary { margin-left: auto; }
+.owner-logout { display: flex; align-items: center; gap: 6px; border: 0; background: none; color: #817874; font-size: 9px; font-weight: 700; cursor: pointer; }
+.owner-message { max-width: 220px; display: flex; align-items: center; gap: 5px; color: #497359; font-size: 9px; line-height: 1.35; }
+
+@media (max-width: 620px) {
+  .owner-header { min-height: 70px; padding: 0 16px; }
+  .owner-title > span { width: 36px; height: 36px; }
+  .owner-login { padding: 28px 22px; }
+  .owner-login h2 { font-size: 31px; }
+  .owner-tabs { padding: 8px; }
+  .owner-tabs button { min-height: 50px; flex-direction: column; gap: 3px; font-size: 8px; }
+  .owner-panel { padding: 23px 16px; }
+  .owner-price-list > label { grid-template-columns: 54px 1fr; }
+  .owner-price-list img { width: 54px; height: 48px; }
+  .owner-price-input { grid-column: 1 / -1; }
+  .owner-photo-grid { grid-template-columns: repeat(2, 1fr); }
+  .owner-feature-form { grid-template-columns: 1fr; }
+  .owner-feature-form button { justify-content: center; }
+  .owner-actions { min-height: 82px; padding: 10px 12px; }
+  .owner-message { display: none; }
+  .owner-actions .owner-primary { padding-inline: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) { .owner-studio { animation: none; } }

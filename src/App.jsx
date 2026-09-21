@@ -12,20 +12,40 @@ import {
   Phone,
   Play,
   Quote,
+  Settings,
+  Sparkles,
   Star,
   UtensilsCrossed,
   Users,
   WineOff,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Header from './components/Header'
 import BookingBar from './components/BookingBar'
 import Gallery from './components/Gallery'
+import OwnerStudio from './components/OwnerStudio'
 import SectionHeading from './components/SectionHeading'
-import { facilities, rooms, trustItems } from './data'
+import { facilities, gallery, rooms, trustItems } from './data'
 
 const GOOGLE_MAPS_URL = 'https://maps.app.goo.gl/JJ7KRoCftp8ind83A?g_st=aw'
 const HOTEL_ORIGIN = 'Hotel Awadh Shree Palace, Saketpuri, Deokali, Ayodhya, Uttar Pradesh 224001'
+const OWNER_CONTENT_KEY = 'awadh-owner-content-v1'
+const EMPTY_OWNER_CONTENT = {
+  roomPrices: {},
+  hiddenGallery: [],
+  customGallery: [],
+  hiddenFacilities: [],
+  customFacilities: [],
+}
+
+function loadOwnerContent() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(OWNER_CONTENT_KEY))
+    return saved ? { ...EMPTY_OWNER_CONTENT, ...saved } : EMPTY_OWNER_CONTENT
+  } catch {
+    return EMPTY_OWNER_CONTENT
+  }
+}
 
 const buildDirectionsUrl = (destination) =>
   `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(HOTEL_ORIGIN)}&destination=${encodeURIComponent(destination)}&travelmode=driving`
@@ -104,7 +124,7 @@ function Story() {
   )
 }
 
-function Rooms() {
+function Rooms({ items }) {
   return (
     <section className="rooms-section" id="rooms">
       <div className="section-shell">
@@ -113,7 +133,7 @@ function Rooms() {
           <a className="arrow-link desktop-only" href="#booking">Check your dates <ArrowRight size={17} /></a>
         </div>
         <div className="room-grid">
-          {rooms.map((room, index) => (
+          {items.map((room, index) => (
             <article className={`room-card ${room.featured ? 'featured' : ''}`} key={room.name}>
               <div className="room-image">
                 <img src={room.image} alt={room.name} loading="lazy" />
@@ -139,7 +159,7 @@ function Rooms() {
   )
 }
 
-function Facilities() {
+function Facilities({ items }) {
   return (
     <section className="facilities-section" id="facilities">
       <div className="section-shell facilities-layout">
@@ -148,7 +168,7 @@ function Facilities() {
           <div className="facilities-note"><span>“</span><p>A practical, welcoming stay with the little comforts that make travel easier.</p></div>
         </div>
         <div className="facility-grid">
-          {facilities.map(({ icon: Icon, title, copy }) => (
+          {items.map(({ icon: Icon, title, copy }) => (
             <article className="facility-card" key={title}>
               <Icon size={25} strokeWidth={1.5} />
               <div><h3>{title}</h3><p>{copy}</p></div>
@@ -275,7 +295,7 @@ function Reviews() {
   )
 }
 
-function Footer() {
+function Footer({ onOwnerOpen }) {
   const year = new Date().getFullYear()
   return (
     <footer id="contact">
@@ -293,25 +313,70 @@ function Footer() {
         <div className="footer-column"><h3>Contact</h3><a href="tel:+919196422812">+91 91964 22812</a><a href="https://wa.me/918016422812">+91 80164 22812</a><a href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer">Get directions</a></div>
         <div className="footer-column footer-address"><h3>Find us</h3><p>Behind Blinkit Store,<br />Saketpuri, Deokali,<br />Ayodhya, Uttar Pradesh 224001</p></div>
       </div>
-      <div className="footer-bottom section-shell"><span>© {year} Hotel Awadh Shree Palace</span><span>Made for memorable Ayodhya stays</span></div>
+      <div className="footer-bottom section-shell">
+        <span>© {year} Hotel Awadh Shree Palace</span>
+        <button className="owner-access" onClick={onOwnerOpen}><Settings size={13} /> Owner access</button>
+        <span>Made for memorable Ayodhya stays</span>
+      </div>
     </footer>
   )
 }
 
 export default function App() {
   const [showWhatsApp, setShowWhatsApp] = useState(false)
+  const [ownerOpen, setOwnerOpen] = useState(false)
+  const [ownerContent, setOwnerContent] = useState(loadOwnerContent)
+
+  const liveRooms = useMemo(
+    () => rooms.map((room) => ({ ...room, price: ownerContent.roomPrices[room.name] || room.price })),
+    [ownerContent.roomPrices],
+  )
+  const liveGallery = useMemo(
+    () => [
+      ...gallery.filter((item) => !ownerContent.hiddenGallery.includes(item.src)),
+      ...ownerContent.customGallery,
+    ],
+    [ownerContent.hiddenGallery, ownerContent.customGallery],
+  )
+  const liveFacilities = useMemo(
+    () => [
+      ...facilities.filter((item) => !ownerContent.hiddenFacilities.includes(item.title)),
+      ...ownerContent.customFacilities.map((item) => ({ ...item, icon: Sparkles })),
+    ],
+    [ownerContent.hiddenFacilities, ownerContent.customFacilities],
+  )
+
+  const saveOwnerContent = (nextContent) => {
+    try {
+      localStorage.setItem(OWNER_CONTENT_KEY, JSON.stringify(nextContent))
+      setOwnerContent(nextContent)
+      return true
+    } catch {
+      return false
+    }
+  }
+
   return (
     <>
       <Hero />
       <TrustStrip />
       <Story />
-      <Rooms />
-      <Facilities />
+      <Rooms items={liveRooms} />
+      <Facilities items={liveFacilities} />
       <Policies />
-      <Gallery />
+      <Gallery items={liveGallery} />
       <Ayodhya />
       <Reviews />
-      <Footer />
+      <Footer onOwnerOpen={() => setOwnerOpen(true)} />
+      <OwnerStudio
+        open={ownerOpen}
+        onClose={() => setOwnerOpen(false)}
+        content={ownerContent}
+        onSave={saveOwnerContent}
+        rooms={rooms}
+        gallery={gallery}
+        facilities={facilities}
+      />
       <div className={`whatsapp-float ${showWhatsApp ? 'is-open' : ''}`}>
         {showWhatsApp && <div className="whatsapp-bubble"><button onClick={() => setShowWhatsApp(false)}>×</button><strong>Namaste! How can we help?</strong><p>Ask about rooms, dates, directions or a family stay.</p><a href="https://wa.me/919196422812?text=Hello%20Hotel%20Awadh%20Shree%20Palace%2C%20I%20would%20like%20to%20plan%20a%20stay." target="_blank" rel="noreferrer">Start a conversation <ArrowRight size={15} /></a></div>}
         <button className="whatsapp-button" onClick={() => setShowWhatsApp(!showWhatsApp)} aria-label="Chat on WhatsApp"><MessageCircle size={23} fill="currentColor" /></button>
