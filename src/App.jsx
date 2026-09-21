@@ -11,21 +11,24 @@ import {
   MessageCircle,
   Phone,
   Play,
-  Quote,
   Settings,
   Sparkles,
-  Star,
   UtensilsCrossed,
   Users,
   WineOff,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import Header from './components/Header'
 import BookingBar from './components/BookingBar'
 import Gallery from './components/Gallery'
-import OwnerStudio from './components/OwnerStudio'
 import SectionHeading from './components/SectionHeading'
+import SEO from './components/SEO'
+import SitePage from './components/SitePages'
 import { facilities, gallery, rooms, trustItems } from './data'
+import { HOTEL, normalisePath } from './seo'
+import { trackEvent } from './analytics'
+
+const OwnerStudio = lazy(() => import('./components/OwnerStudio'))
 
 const GOOGLE_MAPS_URL = 'https://maps.app.goo.gl/JJ7KRoCftp8ind83A?g_st=aw'
 const HOTEL_ORIGIN = 'Hotel Awadh Shree Palace, Saketpuri, Deokali, Ayodhya, Uttar Pradesh 224001'
@@ -37,6 +40,7 @@ const EMPTY_OWNER_CONTENT = {
   hiddenFacilities: [],
   customFacilities: [],
 }
+const OWNER_STUDIO_ENABLED = import.meta.env.DEV || import.meta.env.VITE_ENABLE_OWNER_STUDIO === 'true'
 
 function loadOwnerContent() {
   try {
@@ -56,17 +60,23 @@ const buildRouteEmbedUrl = (destination) =>
 function Hero() {
   return (
     <section className="hero" id="top">
-      <Header />
-      <div className="hero-image" />
+      <picture className="hero-image">
+        <source
+          type="image/webp"
+          srcSet="/assets/optimized/hotel-awadh-shree-palace-ayodhya-exterior-480.webp 480w, /assets/optimized/hotel-awadh-shree-palace-ayodhya-exterior-960.webp 960w, /assets/optimized/hotel-awadh-shree-palace-ayodhya-exterior-1440.webp 1440w, /assets/optimized/hotel-awadh-shree-palace-ayodhya-exterior-1672.webp 1672w"
+          sizes="100vw"
+        />
+        <img src="/assets/optimized/hotel-awadh-shree-palace-ayodhya-exterior-1672.webp" width="1672" height="941" alt="Hotel Awadh Shree Palace exterior in Ayodhya at sunset" fetchPriority="high" decoding="async" />
+      </picture>
       <div className="hero-grain" />
       <div className="hero-content section-shell">
         <div className="hero-copy">
           <p className="hero-kicker"><span /> Welcome to Ayodhya</p>
-          <h1>Stay close to the <em>soul</em> of Ayodhya.</h1>
+          <h1>Hotel Awadh Shree Palace, <em>Ayodhya.</em></h1>
           <p>Peaceful rooms, genuine hospitality and an easy base for families, pilgrims and travellers exploring the sacred city.</p>
           <div className="hero-ctas">
-            <a className="button button-gold" href="#booking">Find your room <ArrowRight size={17} /></a>
-            <a className="hero-link" href="#story"><span><Play size={16} fill="currentColor" /></span> Discover our stay</a>
+            <a className="button button-gold" href="#booking">Check availability <ArrowRight size={17} /></a>
+            <a className="hero-link" href="/rooms"><span><BedDouble size={16} /></span> View rooms</a>
           </div>
         </div>
         <div className="hero-note">
@@ -100,7 +110,7 @@ function Story() {
   return (
     <section className="story section-shell" id="story">
       <div className="story-media">
-        <div className="story-image-main"><img src="/assets/hq-reception.png" alt="Welcoming reception at Hotel Awadh Shree Palace" /></div>
+        <div className="story-image-main"><img src="/assets/optimized/hotel-awadh-shree-palace-reception-1122.webp" srcSet="/assets/optimized/hotel-awadh-shree-palace-reception-480.webp 480w, /assets/optimized/hotel-awadh-shree-palace-reception-800.webp 800w, /assets/optimized/hotel-awadh-shree-palace-reception-1122.webp 1122w" sizes="(max-width: 860px) 85vw, 45vw" width="1122" height="1402" alt="Reception area at Hotel Awadh Shree Palace Ayodhya" loading="lazy" decoding="async" /></div>
         <div className="story-video">
           <video controls muted playsInline poster="/assets/hotel-tour-poster.jpg" preload="metadata">
             <source src="/assets/awadh-hotel-tour.mp4" type="video/mp4" />
@@ -136,7 +146,7 @@ function Rooms({ items }) {
           {items.map((room, index) => (
             <article className={`room-card ${room.featured ? 'featured' : ''}`} key={room.name}>
               <div className="room-image">
-                <img src={room.image} alt={room.name} loading="lazy" />
+                <img src={room.image} srcSet={room.srcSet} sizes="(max-width: 620px) 100vw, (max-width: 860px) 50vw, 33vw" width={room.width} height={room.height} alt={`${room.name} at Hotel Awadh Shree Palace Ayodhya`} loading="lazy" decoding="async" />
                 <span>0{index + 1}</span>
                 {room.featured && <small>Family favourite</small>}
               </div>
@@ -269,53 +279,52 @@ function Ayodhya() {
   )
 }
 
-function Reviews() {
-  const reviews = [
-    { quote: 'The rooms were clean and the staff was genuinely helpful throughout our family stay.', name: 'Family guest', source: 'Guest feedback' },
-    { quote: 'A comfortable, well-organised place to return to after a full day in Ayodhya.', name: 'Ayodhya traveller', source: 'Guest feedback' },
-    { quote: 'Warm service, spacious family rooms and easy assistance whenever we needed it.', name: 'Recent guest', source: 'Guest feedback' },
+function BookingConfidence() {
+  const cards = [
+    { icon: Images, title: 'See the real hotel', copy: 'Browse photographs of the reception, rooms, corridors and other hotel spaces before enquiring.', href: '/gallery', label: 'View hotel gallery' },
+    { icon: Phone, title: 'Contact the hotel directly', copy: 'Call or send your dates on WhatsApp. The hotel team confirms availability personally.', href: '/contact', label: 'Contact the hotel' },
+    { icon: MapPin, title: 'Check the location', copy: 'Review the full Ayodhya address and open a live route in Google Maps.', href: '/location', label: 'View location details' },
   ]
   return (
     <section className="reviews-section">
       <div className="section-shell">
-        <SectionHeading eyebrow="Guest stories" title="Hospitality guests remember" copy="Real comfort is felt in the details — clean spaces, kind service and help at the right moment." align="center" />
+        <SectionHeading eyebrow="Book with clarity" title="The details you need, before you decide" copy="Use real photography, verified hotel information and direct contact options to plan your stay." align="center" />
         <div className="review-grid">
-          {reviews.map((review) => (
-            <article className="review-card" key={review.name}>
-              <Quote size={31} strokeWidth={1} />
-              <div className="stars" aria-label="5 out of 5 stars">{Array.from({ length: 5 }).map((_, index) => <Star key={index} size={15} fill="currentColor" />)}</div>
-              <p>“{review.quote}”</p>
-              <span><strong>{review.name}</strong><small>{review.source}</small></span>
+          {cards.map(({ icon: Icon, title, copy, href, label }) => (
+            <article className="review-card trust-card" key={title}>
+              <Icon size={31} strokeWidth={1.3} />
+              <h3>{title}</h3>
+              <p>{copy}</p>
+              <a className="arrow-link" href={href}>{label} <ArrowRight size={16} /></a>
             </article>
           ))}
         </div>
-        <a className="arrow-link reviews-link" href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer">View Hotel Awadh Shree Palace on Google <ArrowRight size={17} /></a>
       </div>
     </section>
   )
 }
 
-function Footer({ onOwnerOpen }) {
+function Footer({ onOwnerOpen, ownerStudioEnabled }) {
   const year = new Date().getFullYear()
   return (
     <footer id="contact">
       <div className="footer-cta section-shell">
         <div><p className="eyebrow light"><span />Plan your stay<span /></p><h2>Come home to calm in Ayodhya.</h2></div>
-        <a className="button button-gold" href="#booking">Book your stay <ArrowRight size={17} /></a>
+        <a className="button button-gold" href="/#booking">Book your stay <ArrowRight size={17} /></a>
       </div>
       <div className="footer-main section-shell">
         <div className="footer-brand">
-          <a className="brand" href="#top"><span className="brand-mark">अ</span><span className="brand-copy"><strong>Awadh Shree Palace</strong><small>Hotel · Ayodhya</small></span></a>
+          <a className="brand" href="/"><span className="brand-mark">अ</span><span className="brand-copy"><strong>Awadh Shree Palace</strong><small>Hotel · Ayodhya</small></span></a>
           <p>A peaceful, family-friendly stay with warm service in Saketpuri, Deokali, Ayodhya.</p>
-          <div className="socials"><a href="tel:+919196422812" aria-label="Call"><Phone size={18} /></a><a href="https://wa.me/919196422812" aria-label="WhatsApp"><MessageCircle size={18} /></a><a href="#gallery" aria-label="Gallery"><Images size={18} /></a></div>
+          <div className="socials"><a href="tel:+919196422812" aria-label="Call Hotel Awadh Shree Palace"><Phone size={18} /></a><a href="https://wa.me/919196422812" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Hotel Awadh Shree Palace"><MessageCircle size={18} /></a><a href="/gallery" aria-label="Hotel photo gallery"><Images size={18} /></a></div>
         </div>
-        <div className="footer-column"><h3>Explore</h3><a href="#rooms">Rooms</a><a href="#facilities">Facilities</a><a href="#gallery">Gallery</a><a href="#ayodhya">Ayodhya</a></div>
-        <div className="footer-column"><h3>Contact</h3><a href="tel:+919196422812">+91 91964 22812</a><a href="https://wa.me/918016422812">+91 80164 22812</a><a href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer">Get directions</a></div>
-        <div className="footer-column footer-address"><h3>Find us</h3><p>Behind Blinkit Store,<br />Saketpuri, Deokali,<br />Ayodhya, Uttar Pradesh 224001</p></div>
+        <div className="footer-column"><h3>Explore</h3><a href="/rooms">Rooms</a><a href="/amenities">Amenities</a><a href="/gallery">Gallery</a><a href="/location">Location</a><a href="/ayodhya-travel-guide">Ayodhya travel guide</a></div>
+        <div className="footer-column"><h3>Contact</h3><a href="tel:+919196422812">+91 91964 22812</a><a href="https://wa.me/918016422812" target="_blank" rel="noopener noreferrer">+91 80164 22812</a><a href={GOOGLE_MAPS_URL} target="_blank" rel="noopener noreferrer">Get directions</a><a href="/faq">Hotel FAQs</a></div>
+        <div className="footer-column footer-address"><h3>Find us</h3><address>Behind Blinkit Store,<br />Saketpuri, Deokali,<br />Ayodhya, Uttar Pradesh 224001</address><a href="/#policies">Hotel policies</a></div>
       </div>
       <div className="footer-bottom section-shell">
         <span>© {year} Hotel Awadh Shree Palace</span>
-        <button className="owner-access" onClick={onOwnerOpen}><Settings size={13} /> Owner access</button>
+        {ownerStudioEnabled && <button className="owner-access" onClick={onOwnerOpen}><Settings size={13} /> Owner access</button>}
         <span>Made for memorable Ayodhya stays</span>
       </div>
     </footer>
@@ -323,6 +332,7 @@ function Footer({ onOwnerOpen }) {
 }
 
 export default function App() {
+  const path = normalisePath(typeof window === 'undefined' ? '/' : window.location.pathname)
   const [showWhatsApp, setShowWhatsApp] = useState(false)
   const [ownerOpen, setOwnerOpen] = useState(false)
   const [ownerContent, setOwnerContent] = useState(loadOwnerContent)
@@ -358,17 +368,26 @@ export default function App() {
 
   return (
     <>
-      <Hero />
-      <TrustStrip />
-      <Story />
-      <Rooms items={liveRooms} />
-      <Facilities items={liveFacilities} />
-      <Policies />
-      <Gallery items={liveGallery} />
-      <Ayodhya />
-      <Reviews />
-      <Footer onOwnerOpen={() => setOwnerOpen(true)} />
-      <OwnerStudio
+      <SEO path={path} />
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+      <Header solid={path !== '/'} />
+      <main id="main-content">
+        {path === '/' ? (
+          <>
+            <Hero />
+            <TrustStrip />
+            <Story />
+            <Rooms items={liveRooms} />
+            <Facilities items={liveFacilities} />
+            <Policies />
+            <Gallery items={liveGallery} />
+            <Ayodhya />
+            <BookingConfidence />
+          </>
+        ) : <SitePage path={path} rooms={liveRooms} gallery={liveGallery} facilities={liveFacilities} />}
+      </main>
+      <Footer onOwnerOpen={() => setOwnerOpen(true)} ownerStudioEnabled={OWNER_STUDIO_ENABLED} />
+      {OWNER_STUDIO_ENABLED && <Suspense fallback={null}><OwnerStudio
         open={ownerOpen}
         onClose={() => setOwnerOpen(false)}
         content={ownerContent}
@@ -376,11 +395,16 @@ export default function App() {
         rooms={rooms}
         gallery={gallery}
         facilities={facilities}
-      />
+      /></Suspense>}
       <div className={`whatsapp-float ${showWhatsApp ? 'is-open' : ''}`}>
-        {showWhatsApp && <div className="whatsapp-bubble"><button onClick={() => setShowWhatsApp(false)}>×</button><strong>Namaste! How can we help?</strong><p>Ask about rooms, dates, directions or a family stay.</p><a href="https://wa.me/919196422812?text=Hello%20Hotel%20Awadh%20Shree%20Palace%2C%20I%20would%20like%20to%20plan%20a%20stay." target="_blank" rel="noreferrer">Start a conversation <ArrowRight size={15} /></a></div>}
+        {showWhatsApp && <div className="whatsapp-bubble"><button onClick={() => setShowWhatsApp(false)}>×</button><strong>Namaste! How can we help?</strong><p>Ask about rooms, dates, directions or a family stay.</p><a href="https://wa.me/919196422812?text=Hello%20Hotel%20Awadh%20Shree%20Palace%2C%20I%20would%20like%20to%20plan%20a%20stay." target="_blank" rel="noopener noreferrer" onClick={() => trackEvent('whatsapp_click', { placement: 'floating_chat' })}>Start a conversation <ArrowRight size={15} /></a></div>}
         <button className="whatsapp-button" onClick={() => setShowWhatsApp(!showWhatsApp)} aria-label="Chat on WhatsApp"><MessageCircle size={23} fill="currentColor" /></button>
       </div>
+      <nav className="mobile-actions" aria-label="Quick hotel actions">
+        <a href={HOTEL.telephoneHref} onClick={() => trackEvent('phone_click', { placement: 'mobile_bar' })}><Phone size={17} />Call</a>
+        <a href={HOTEL.whatsappHref} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent('whatsapp_click', { placement: 'mobile_bar' })}><MessageCircle size={17} />WhatsApp</a>
+        <a href="/#booking"><BedDouble size={17} />Book</a>
+      </nav>
     </>
   )
 }

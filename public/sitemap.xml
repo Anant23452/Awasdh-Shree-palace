@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.awadhshreepalace.com/</loc>
+    <priority>1.0</priority>
+    <image:image><image:loc>https://www.awadhshreepalace.com/assets/optimized/hotel-awadh-shree-palace-ayodhya-exterior-1672.webp</image:loc><image:title>Hotel Awadh Shree Palace exterior in Ayodhya</image:title></image:image>
+  </url>
+  <url><loc>https://www.awadhshreepalace.com/rooms</loc><priority>0.9</priority></url>
+  <url><loc>https://www.awadhshreepalace.com/amenities</loc><priority>0.8</priority></url>
+  <url>
+    <loc>https://www.awadhshreepalace.com/gallery</loc>
+    <priority>0.8</priority>
+    <image:image><image:loc>https://www.awadhshreepalace.com/assets/optimized/hotel-awadh-shree-palace-reception-1122.webp</image:loc><image:title>Hotel Awadh Shree Palace reception</image:title></image:image>
+    <image:image><image:loc>https://www.awadhshreepalace.com/assets/optimized/awadh-shree-palace-family-room-1122.webp</image:loc><image:title>Family room at Hotel Awadh Shree Palace</image:title></image:image>
+  </url>
+  <url><loc>https://www.awadhshreepalace.com/location</loc><priority>0.9</priority></url>
+  <url><loc>https://www.awadhshreepalace.com/about</loc><priority>0.6</priority></url>
+  <url><loc>https://www.awadhshreepalace.com/contact</loc><priority>0.9</priority></url>
+  <url><loc>https://www.awadhshreepalace.com/faq</loc><priority>0.7</priority></url>
+  <url><loc>https://www.awadhshreepalace.com/ayodhya-travel-guide</loc><priority>0.7</priority></url>
+  <url><loc>https://www.awadhshreepalace.com/hotel-near-ram-mandir-ayodhya</loc><priority>0.8</priority></url>
+</urlset>

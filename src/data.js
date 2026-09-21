@@ -22,7 +22,10 @@ import {
 export const rooms = [
   {
     name: 'Deluxe Room',
-    image: '/assets/hq-classic-room.png',
+    image: '/assets/optimized/awadh-shree-palace-deluxe-room-1122.webp',
+    srcSet: '/assets/optimized/awadh-shree-palace-deluxe-room-480.webp 480w, /assets/optimized/awadh-shree-palace-deluxe-room-800.webp 800w, /assets/optimized/awadh-shree-palace-deluxe-room-1122.webp 1122w',
+    width: 1122,
+    height: 1402,
     guests: '2 guests',
     bed: '1 king bed',
     price: '₹1,799',
@@ -31,7 +34,10 @@ export const rooms = [
   },
   {
     name: 'Family Room',
-    image: '/assets/hq-family-suite.png',
+    image: '/assets/optimized/awadh-shree-palace-family-room-1122.webp',
+    srcSet: '/assets/optimized/awadh-shree-palace-family-room-480.webp 480w, /assets/optimized/awadh-shree-palace-family-room-800.webp 800w, /assets/optimized/awadh-shree-palace-family-room-1122.webp 1122w',
+    width: 1122,
+    height: 1402,
     guests: 'Up to 4 guests',
     bed: '2 queen beds',
     price: '₹2,499',
@@ -41,7 +47,10 @@ export const rooms = [
   },
   {
     name: 'Premium Room',
-    image: '/assets/hq-family-premium.png',
+    image: '/assets/optimized/awadh-shree-palace-premium-room-1200.webp',
+    srcSet: '/assets/optimized/awadh-shree-palace-premium-room-480.webp 480w, /assets/optimized/awadh-shree-palace-premium-room-800.webp 800w, /assets/optimized/awadh-shree-palace-premium-room-1200.webp 1200w',
+    width: 1200,
+    height: 973,
     guests: 'Up to 4 guests',
     bed: '2 king beds',
     price: '₹2,999',
@@ -65,16 +74,16 @@ export const facilities = [
 ]
 
 export const gallery = [
-  { src: '/assets/hq-reception.png', alt: 'Warm illuminated reception at Hotel Awadh Shree Palace', label: 'Welcome' },
-  { src: '/assets/hq-family-premium.png', alt: 'Premium family room with two double beds', label: 'Family room' },
-  { src: '/assets/hq-deluxe-king.png', alt: 'Deluxe king room at Hotel Awadh Shree Palace', label: 'Deluxe room' },
-  { src: '/assets/hq-hotel-spaces.png', alt: 'Hotel interiors, corridors, lift and reception', label: 'Hotel spaces' },
-  { src: '/assets/hq-family-suite.png', alt: 'Family suite with sitting area', label: 'Family suite' },
-  { src: '/assets/hq-classic-room.png', alt: 'Classic double room', label: 'Classic room' },
+  { src: '/assets/optimized/hotel-awadh-shree-palace-reception-1122.webp', srcSet: '/assets/optimized/hotel-awadh-shree-palace-reception-480.webp 480w, /assets/optimized/hotel-awadh-shree-palace-reception-800.webp 800w, /assets/optimized/hotel-awadh-shree-palace-reception-1122.webp 1122w', width: 1122, height: 1402, alt: 'Reception area at Hotel Awadh Shree Palace Ayodhya', label: 'Reception' },
+  { src: '/assets/optimized/awadh-shree-palace-premium-room-1200.webp', srcSet: '/assets/optimized/awadh-shree-palace-premium-room-480.webp 480w, /assets/optimized/awadh-shree-palace-premium-room-800.webp 800w, /assets/optimized/awadh-shree-palace-premium-room-1200.webp 1200w', width: 1200, height: 973, alt: 'Premium family room at Hotel Awadh Shree Palace Ayodhya', label: 'Premium room' },
+  { src: '/assets/optimized/awadh-shree-palace-king-room-1200.webp', srcSet: '/assets/optimized/awadh-shree-palace-king-room-480.webp 480w, /assets/optimized/awadh-shree-palace-king-room-800.webp 800w, /assets/optimized/awadh-shree-palace-king-room-1200.webp 1200w', width: 1200, height: 900, alt: 'King guest room at Hotel Awadh Shree Palace Ayodhya', label: 'King room' },
+  { src: '/assets/optimized/hotel-awadh-shree-palace-interiors-1200.webp', srcSet: '/assets/optimized/hotel-awadh-shree-palace-interiors-480.webp 480w, /assets/optimized/hotel-awadh-shree-palace-interiors-800.webp 800w, /assets/optimized/hotel-awadh-shree-palace-interiors-1200.webp 1200w', width: 1200, height: 900, alt: 'Hotel corridors, lift and reception at Hotel Awadh Shree Palace', label: 'Hotel spaces' },
+  { src: '/assets/optimized/awadh-shree-palace-family-room-1122.webp', srcSet: '/assets/optimized/awadh-shree-palace-family-room-480.webp 480w, /assets/optimized/awadh-shree-palace-family-room-800.webp 800w, /assets/optimized/awadh-shree-palace-family-room-1122.webp 1122w', width: 1122, height: 1402, alt: 'Family room with sitting area at Hotel Awadh Shree Palace', label: 'Family room' },
+  { src: '/assets/optimized/awadh-shree-palace-deluxe-room-1122.webp', srcSet: '/assets/optimized/awadh-shree-palace-deluxe-room-480.webp 480w, /assets/optimized/awadh-shree-palace-deluxe-room-800.webp 800w, /assets/optimized/awadh-shree-palace-deluxe-room-1122.webp 1122w', width: 1122, height: 1402, alt: 'Deluxe guest room at Hotel Awadh Shree Palace Ayodhya', label: 'Deluxe room' },
 ]
 
 export const trustItems = [
-  { icon: Sparkles, value: 'Guest-loved', label: 'Warm hospitality' },
+  { icon: Sparkles, value: 'Direct help', label: 'Call or WhatsApp the hotel' },
   { icon: MapPin, value: 'Ayodhya', label: 'Saketpuri, Deokali' },
   { icon: CarFront, value: 'Complimentary', label: 'On-site parking' },
   { icon: HeartHandshake, value: 'Family first', label: 'Comfortable group stays' },

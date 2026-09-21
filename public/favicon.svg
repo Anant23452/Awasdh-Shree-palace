@@ -1,0 +1,5 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="9" fill="#5a1d2b"/>
+  <rect x="5" y="5" width="54" height="54" rx="6" fill="none" stroke="#d8bd82" stroke-width="1.5"/>
+  <text x="32" y="43" text-anchor="middle" font-family="Georgia, serif" font-size="33" fill="#f6f0e5">अ</text>
+</svg>

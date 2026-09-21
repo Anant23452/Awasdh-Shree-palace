@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CalendarDays, Check, ChevronDown, Search, Users, X } from 'lucide-react'
+import { trackEvent } from '../analytics'
 
 const toISO = (date) => {
   const copy = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
@@ -18,6 +19,7 @@ export default function BookingBar() {
 
   const submit = (event) => {
     event.preventDefault()
+    trackEvent('availability_check', { check_in: checkIn, check_out: checkOut, guests })
     setOpen(true)
   }
 
@@ -73,7 +75,7 @@ export default function BookingBar() {
               <span><small>Check out</small>{checkOut}</span>
               <span><small>Guests</small>{guests}</span>
             </div>
-            <a className="button button-maroon full-button" href={`https://wa.me/919196422812?text=${whatsappText}`} target="_blank" rel="noreferrer">Continue on WhatsApp</a>
+            <a className="button button-maroon full-button" href={`https://wa.me/919196422812?text=${whatsappText}`} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent('room_enquiry', { check_in: checkIn, check_out: checkOut, guests })}>Continue on WhatsApp</a>
             <button className="text-button" onClick={() => setOpen(false)}>Keep exploring</button>
           </div>
         </div>,
