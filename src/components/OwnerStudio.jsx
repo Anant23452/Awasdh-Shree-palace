@@ -14,8 +14,8 @@ import {
 } from 'lucide-react'
 import './owner-studio.css'
 
-const OWNER_SESSION_KEY = 'awadh-owner-authenticated'
-const OWNER_PASSCODE = import.meta.env.VITE_OWNER_PASSCODE || 'awadh-owner'
+const MAX_CUSTOM_IMAGES = 6
+const TARGET_IMAGE_BYTES = 150 * 1024
 
 function formatRoomPrice(value) {
   const amount = String(value).replace(/[^0-9]/g, '')
@@ -30,14 +30,27 @@ function compressImage(file) {
       const image = new Image()
       image.onerror = () => reject(new Error('This image format is not supported.'))
       image.onload = () => {
-        const maxSize = 1600
-        const scale = Math.min(1, maxSize / Math.max(image.width, image.height))
-        const canvas = document.createElement('canvas')
-        canvas.width = Math.round(image.width * scale)
-        canvas.height = Math.round(image.height * scale)
-        const context = canvas.getContext('2d')
-        context.drawImage(image, 0, 0, canvas.width, canvas.height)
-        resolve(canvas.toDataURL('image/jpeg', 0.82))
+        let maxSize = 1200
+        let quality = 0.8
+        let output = ''
+        for (let attempt = 0; attempt < 8; attempt += 1) {
+          const scale = Math.min(1, maxSize / Math.max(image.width, image.height))
+          const canvas = document.createElement('canvas')
+          canvas.width = Math.round(image.width * scale)
+          canvas.height = Math.round(image.height * scale)
+          const context = canvas.getContext('2d')
+          context.drawImage(image, 0, 0, canvas.width, canvas.height)
+          output = canvas.toDataURL('image/jpeg', quality)
+          const base64Length = output.length - (output.indexOf(',') + 1)
+          const approximateBytes = Math.ceil(base64Length * 0.75)
+          if (approximateBytes <= TARGET_IMAGE_BYTES) {
+            resolve(output)
+            return
+          }
+          maxSize = Math.max(720, Math.round(maxSize * 0.86))
+          quality = Math.max(0.5, quality - 0.06)
+        }
+        reject(new Error('This photo could not be made small enough for cloud sync. Please choose a simpler or smaller image.'))
       }
       image.src = reader.result
     }
@@ -45,10 +58,14 @@ function compressImage(file) {
   })
 }
 
-export default function OwnerStudio({ open, onClose, content, onSave, rooms, gallery, facilities }) {
-  const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem(OWNER_SESSION_KEY) === 'yes')
+export default function OwnerStudio({ open, onClose, content, onAuthenticate, onSave, rooms, gallery, facilities }) {
+  const [authenticated, setAuthenticated] = useState(false)
+  const [ownerKey, setOwnerKey] = useState('')
+  const [authMode, setAuthMode] = useState('cloud')
   const [passcode, setPasscode] = useState('')
   const [loginError, setLoginError] = useState('')
+  const [loginBusy, setLoginBusy] = useState(false)
+  const [saveBusy, setSaveBusy] = useState(false)
   const [activeTab, setActiveTab] = useState('prices')
   const [draft, setDraft] = useState(content)
   const [featureTitle, setFeatureTitle] = useState('')
@@ -72,46 +89,54 @@ export default function OwnerStudio({ open, onClose, content, onSave, rooms, gal
 
   if (!open) return null
 
-  const login = (event) => {
+  const login = async (event) => {
     event.preventDefault()
-    if (passcode !== OWNER_PASSCODE) {
-      setLoginError('That passcode is not correct. Please try again.')
+    setLoginBusy(true)
+    setLoginError('')
+    const result = await onAuthenticate(passcode)
+    setLoginBusy(false)
+    if (!result.ok) {
+      setLoginError(result.message || 'That passcode is not correct. Please try again.')
       return
     }
-    sessionStorage.setItem(OWNER_SESSION_KEY, 'yes')
+    setOwnerKey(passcode)
+    setAuthMode(result.mode || 'cloud')
     setAuthenticated(true)
-    setLoginError('')
     setPasscode('')
   }
 
   const logout = () => {
-    sessionStorage.removeItem(OWNER_SESSION_KEY)
     setAuthenticated(false)
+    setOwnerKey('')
+    setAuthMode('cloud')
     setActiveTab('prices')
   }
 
-  const saveChanges = () => {
+  const saveChanges = async () => {
     const next = {
       ...draft,
       roomPrices: Object.fromEntries(
         Object.entries(draft.roomPrices).map(([name, value]) => [name, formatRoomPrice(value)]),
       ),
     }
-    const saved = onSave(next)
-    if (saved) {
-      setDraft(next)
-      setMessage('Your website changes are now live on this device.')
+    setSaveBusy(true)
+    setMessage('Publishing your changes…')
+    const result = await onSave(next, ownerKey, authMode)
+    setSaveBusy(false)
+    if (result.ok) {
+      setDraft(result.content || next)
+      setMessage(result.mode === 'local' ? 'Saved locally for development.' : 'Published. Every device will now see these changes.')
       window.setTimeout(() => setMessage(''), 3200)
     } else {
-      setMessage('The browser could not save these changes. Try removing a large gallery image.')
+      setMessage(result.message || 'The website changes could not be published. Please try again.')
     }
   }
 
   const uploadImages = async (event) => {
     const files = Array.from(event.target.files || [])
     if (!files.length) return
-    if (draft.customGallery.length + files.length > 8) {
-      setMessage('You can keep up to 8 owner-uploaded photos in this browser.')
+    if (draft.customGallery.length + files.length > MAX_CUSTOM_IMAGES) {
+      setMessage(`You can keep up to ${MAX_CUSTOM_IMAGES} owner-uploaded photos.`)
       event.target.value = ''
       return
     }
@@ -120,7 +145,7 @@ export default function OwnerStudio({ open, onClose, content, onSave, rooms, gal
       const newImages = []
       for (const file of files) {
         if (!file.type.startsWith('image/')) continue
-        if (file.size > 10 * 1024 * 1024) throw new Error('Please choose images smaller than 10 MB.')
+        if (file.size > 8 * 1024 * 1024) throw new Error('Please choose images smaller than 8 MB.')
         const src = await compressImage(file)
         const cleanName = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim()
         newImages.push({
@@ -187,9 +212,9 @@ export default function OwnerStudio({ open, onClose, content, onSave, rooms, gal
               <label htmlFor="owner-passcode">Owner passcode</label>
               <input id="owner-passcode" type="password" value={passcode} onChange={(event) => setPasscode(event.target.value)} autoFocus autoComplete="current-password" placeholder="Enter passcode" />
               {loginError && <span className="owner-error">{loginError}</span>}
-              <button className="owner-primary" type="submit">Open dashboard <ShieldCheck size={17} /></button>
+              <button className="owner-primary" type="submit" disabled={loginBusy}>{loginBusy ? 'Checking…' : 'Open dashboard'} <ShieldCheck size={17} /></button>
             </form>
-            <small className="owner-security-note">This dashboard saves changes in this browser. See the project guide before publishing it online.</small>
+            <small className="owner-security-note">Owner access is verified securely by the server. Published changes are shared across phones and computers.</small>
           </div>
         ) : (
           <div className="owner-workspace">
@@ -223,7 +248,7 @@ export default function OwnerStudio({ open, onClose, content, onSave, rooms, gal
                   <h2>Add or remove hotel photos</h2>
                   <p>Upload clear JPG, PNG or WebP images. Photos are resized automatically for faster loading.</p>
                   <input ref={fileInput} className="owner-file-input" type="file" accept="image/*" multiple onChange={uploadImages} />
-                  <button className="owner-upload" onClick={() => fileInput.current?.click()}><ImagePlus size={20} /><span><strong>Upload gallery photos</strong><small>Up to 10 MB each · maximum 8 uploads</small></span></button>
+                  <button className="owner-upload" onClick={() => fileInput.current?.click()}><ImagePlus size={20} /><span><strong>Upload gallery photos</strong><small>Up to 8 MB each · maximum {MAX_CUSTOM_IMAGES} cloud uploads</small></span></button>
                   <div className="owner-photo-grid">
                     {activeGallery.map((item) => (
                       <figure key={item.id || item.src}>
@@ -263,7 +288,7 @@ export default function OwnerStudio({ open, onClose, content, onSave, rooms, gal
             <footer className="owner-actions">
               <button className="owner-logout" onClick={logout}><LogOut size={16} /> Log out</button>
               {message && <span className="owner-message"><Check size={14} /> {message}</span>}
-              <button className="owner-primary" onClick={saveChanges}><Save size={17} /> Publish changes</button>
+              <button className="owner-primary" onClick={saveChanges} disabled={saveBusy}>{saveBusy ? 'Publishing…' : 'Publish changes'} <Save size={17} /></button>
             </footer>
           </div>
         )}

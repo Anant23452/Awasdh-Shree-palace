@@ -17,6 +17,7 @@
 .owner-login input, .owner-feature-form input, .owner-feature-form textarea { width: 100%; margin-top: 7px; padding: 14px 15px; border: 1px solid #d9cfc1; border-radius: 0; outline: none; background: #fffdf8; color: #302927; font: inherit; font-size: 12px; }
 .owner-login input:focus, .owner-feature-form input:focus, .owner-feature-form textarea:focus, .owner-price-input:focus-within { border-color: #a27b3f; box-shadow: 0 0 0 3px rgba(162, 123, 63, .1); }
 .owner-primary { min-height: 47px; padding: 0 19px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 0; background: #64192d; color: white; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.owner-primary:disabled { cursor: wait; opacity: .68; }
 .owner-login .owner-primary { width: 100%; margin-top: 5px; }
 .owner-error { color: #a52d2d; font-size: 10px; }
 .owner-security-note { display: block; margin-top: 20px; color: #928985; font-size: 9px; line-height: 1.6; }

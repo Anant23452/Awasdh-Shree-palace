@@ -17,7 +17,7 @@ import {
   Users,
   WineOff,
 } from 'lucide-react'
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import Header from './components/Header'
 import BookingBar from './components/BookingBar'
 import Gallery from './components/Gallery'
@@ -39,15 +39,37 @@ const EMPTY_OWNER_CONTENT = {
   customGallery: [],
   hiddenFacilities: [],
   customFacilities: [],
+  updatedAt: null,
 }
-const OWNER_STUDIO_ENABLED = import.meta.env.DEV || import.meta.env.VITE_ENABLE_OWNER_STUDIO === 'true'
+const OWNER_STUDIO_ENABLED = import.meta.env.VITE_ENABLE_OWNER_STUDIO !== 'false'
+
+function normaliseOwnerContent(value) {
+  const content = value && typeof value === 'object' ? value : {}
+  return {
+    ...EMPTY_OWNER_CONTENT,
+    ...content,
+    roomPrices: content.roomPrices && typeof content.roomPrices === 'object' ? content.roomPrices : {},
+    hiddenGallery: Array.isArray(content.hiddenGallery) ? content.hiddenGallery : [],
+    customGallery: Array.isArray(content.customGallery) ? content.customGallery : [],
+    hiddenFacilities: Array.isArray(content.hiddenFacilities) ? content.hiddenFacilities : [],
+    customFacilities: Array.isArray(content.customFacilities) ? content.customFacilities : [],
+  }
+}
+
+function saveLocalBackup(content) {
+  try {
+    localStorage.setItem(OWNER_CONTENT_KEY, JSON.stringify(content))
+  } catch {
+    // A cloud save can still succeed if the browser cannot keep a local backup.
+  }
+}
 
 function loadOwnerContent() {
   try {
     const saved = JSON.parse(localStorage.getItem(OWNER_CONTENT_KEY))
-    return saved ? { ...EMPTY_OWNER_CONTENT, ...saved } : EMPTY_OWNER_CONTENT
+    return normaliseOwnerContent(saved)
   } catch {
-    return EMPTY_OWNER_CONTENT
+    return normaliseOwnerContent()
   }
 }
 
@@ -337,6 +359,38 @@ export default function App() {
   const [ownerOpen, setOwnerOpen] = useState(false)
   const [ownerContent, setOwnerContent] = useState(loadOwnerContent)
 
+  useEffect(() => {
+    let active = true
+    const loadSharedContent = async () => {
+      try {
+        const response = await fetch('/api/site-content', { headers: { Accept: 'application/json' }, cache: 'no-store' })
+        if (!response.ok) return
+        const payload = await response.json()
+        // Keep an owner's existing browser-only edits available for the first
+        // cloud publish instead of replacing them with an empty new database.
+        if (!payload.content?.updatedAt) return
+        const nextContent = normaliseOwnerContent(payload.content)
+        if (active) {
+          setOwnerContent(nextContent)
+          saveLocalBackup(nextContent)
+        }
+      } catch {
+        // Keep the latest local backup when offline or during plain Vite development.
+      }
+    }
+
+    loadSharedContent()
+    const refreshOnFocus = () => loadSharedContent()
+    const refreshWhenVisible = () => document.visibilityState === 'visible' && loadSharedContent()
+    window.addEventListener('focus', refreshOnFocus)
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+    return () => {
+      active = false
+      window.removeEventListener('focus', refreshOnFocus)
+      document.removeEventListener('visibilitychange', refreshWhenVisible)
+    }
+  }, [])
+
   const liveRooms = useMemo(
     () => rooms.map((room) => ({ ...room, price: ownerContent.roomPrices[room.name] || room.price })),
     [ownerContent.roomPrices],
@@ -356,13 +410,52 @@ export default function App() {
     [ownerContent.hiddenFacilities, ownerContent.customFacilities],
   )
 
-  const saveOwnerContent = (nextContent) => {
+  const authenticateOwner = async (passcode) => {
     try {
-      localStorage.setItem(OWNER_CONTENT_KEY, JSON.stringify(nextContent))
-      setOwnerContent(nextContent)
-      return true
+      const response = await fetch('/api/site-content', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${passcode}` },
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (response.ok) return { ok: true }
+      if (import.meta.env.DEV && response.status === 503 && passcode === (import.meta.env.VITE_OWNER_PASSCODE || 'awadh-owner')) {
+        return { ok: true, mode: 'local' }
+      }
+      return { ok: false, message: payload.message || 'Owner access is unavailable. Please try again.' }
     } catch {
-      return false
+      if (import.meta.env.DEV && passcode === (import.meta.env.VITE_OWNER_PASSCODE || 'awadh-owner')) {
+        return { ok: true, mode: 'local' }
+      }
+      return { ok: false, message: 'Could not reach the secure owner service. Check your connection and try again.' }
+    }
+  }
+
+  const saveOwnerContent = async (nextContent, ownerKey, authMode) => {
+    if (import.meta.env.DEV && authMode === 'local') {
+      const localContent = normaliseOwnerContent({ ...nextContent, updatedAt: new Date().toISOString() })
+      saveLocalBackup(localContent)
+      setOwnerContent(localContent)
+      return { ok: true, content: localContent, mode: 'local' }
+    }
+
+    try {
+      const response = await fetch('/api/site-content', {
+        method: 'PUT',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${ownerKey}`,
+        },
+        body: JSON.stringify({ content: nextContent }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) return { ok: false, message: payload.message || 'The website changes could not be published.' }
+      const publishedContent = normaliseOwnerContent(payload.content)
+      saveLocalBackup(publishedContent)
+      setOwnerContent(publishedContent)
+      return { ok: true, content: publishedContent, mode: 'cloud' }
+    } catch {
+      return { ok: false, message: 'Could not publish the changes. Check your internet connection and try again.' }
     }
   }
 
@@ -391,6 +484,7 @@ export default function App() {
         open={ownerOpen}
         onClose={() => setOwnerOpen(false)}
         content={ownerContent}
+        onAuthenticate={authenticateOwner}
         onSave={saveOwnerContent}
         rooms={rooms}
         gallery={gallery}

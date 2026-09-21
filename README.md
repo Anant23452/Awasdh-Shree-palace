@@ -50,15 +50,25 @@ The hero is preloaded and uses high fetch priority. Below-the-fold images use re
 
 ## Owner Studio
 
-Owner Studio is available automatically during local development. After signing in, the owner can directly:
+Owner Studio lets the hotel owner directly:
 
 - update every room's nightly price;
 - upload or remove gallery images;
 - add or remove hotel features and facilities.
 
-Changes are published immediately and saved in the current browser using local storage. The local development passcode is `awadh-owner` unless it is changed in `.env`.
+Published changes are stored in Upstash Redis through a protected Vercel API. Prices, photos and features therefore remain the same on every phone and computer. Public pages load the latest shared content on opening and refresh it when the browser tab becomes active again. A local browser copy is retained only as an offline fallback.
 
-This local version is intentionally disabled in production. Do not set `VITE_ENABLE_OWNER_STUDIO=true` on a public site until the dashboard is connected to authenticated server storage such as Supabase or Firebase. A `VITE_` passcode is visible in frontend code and is not production security.
+### Enable shared owner changes on Vercel
+
+1. Open the Vercel project, go to **Storage / Marketplace**, install **Upstash Redis**, and connect it to this project.
+2. Confirm Vercel created `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. The API also supports integrations using `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
+3. In **Project Settings → Environment Variables**, add `OWNER_ADMIN_KEY` with a private password of at least 16 characters. This variable must not start with `VITE_`.
+4. Set `VITE_ENABLE_OWNER_STUDIO=true` if it was previously disabled.
+5. Redeploy the project so the new server variables are available.
+
+The production password is checked only by `api/site-content.js`; it is not bundled into the public frontend. Failed sign-in attempts are temporarily rate-limited. Do not commit a real `.env` file or share `OWNER_ADMIN_KEY`.
+
+For normal `npm run dev`, Vite does not run the Vercel API directory. The dashboard therefore uses local development mode and the `VITE_OWNER_PASSCODE` value from `.env` (default fallback: `awadh-owner`). Use `vercel dev` when testing the full cloud-backed flow locally.
 
 ## Information still needed from the hotel
 
