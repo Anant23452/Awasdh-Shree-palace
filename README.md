@@ -61,7 +61,7 @@ Published changes are stored in Upstash Redis through a protected Vercel API. Pr
 ### Enable shared owner changes on Vercel
 
 1. Open the Vercel project, go to **Storage / Marketplace**, install **Upstash Redis**, and connect it to this project.
-2. Confirm Vercel created `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. The API also supports integrations using `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
+2. Add the Upstash REST credentials as `STORAGE_URL` and `STORAGE_TOKEN`. The API also automatically supports `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` and the older `KV_REST_API_URL` / `KV_REST_API_TOKEN` names.
 3. In **Project Settings → Environment Variables**, add `OWNER_ADMIN_KEY` with a private password of at least 16 characters. This variable must not start with `VITE_`.
 4. Set `VITE_ENABLE_OWNER_STUDIO=true` if it was previously disabled.
 5. Redeploy the project so the new server variables are available.
