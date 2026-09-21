@@ -223,10 +223,10 @@ function Ayodhya() {
   const places = [
     { number: '01', name: 'Jai Mata Di Temple', time: 'Approx. 0.9 km from hotel', destination: 'Jai Mata Di Temple, Ayodhya', distance: '0.9 km', driveTime: 'a very short local ride' },
     { number: '02', name: 'Durga Mandir', time: 'Approx. 1.8 km from hotel', destination: 'Durga Mandir, Ayodhya', distance: '1.8 km', driveTime: 'a short local ride' },
-    { number: '03', name: 'Shri Ram Mandir', time: 'Approx. 2.7 km from hotel', destination: 'Shri Ram Janmabhoomi Mandir, Ayodhya', distance: '2.7 km', driveTime: 'check the live road route' },
+    { number: '03', name: 'Shri Ram Mandir', time: 'Approx. 2.1 km from hotel', destination: 'Shri Ram Janmabhoomi Mandir, Ayodhya', distance: '2.7 km', driveTime: 'check the live road route' },
     { number: '04', name: 'Hanuman Garhi', time: 'Historic hilltop temple · live route', destination: 'Hanuman Garhi Mandir, Ayodhya' },
     { number: '05', name: 'Kanak Bhawan', time: 'Sacred palace temple · live route', destination: 'Kanak Bhawan, Ayodhya' },
-    { number: '06', name: 'Saryu Ghat', time: 'Approx. 6.9 km by the fastest road route', destination: 'Saryu Ghat Ayodhya, Naya Ghat, Ayodhya, Uttar Pradesh 224123', distance: '6.9 km', driveTime: 'about 18 min by car' },
+    { number: '06', name: 'Saryu Ghat', time: 'Approx. 5.9 km by the fastest road route', destination: 'Saryu Ghat Ayodhya, Naya Ghat, Ayodhya, Uttar Pradesh 224123', distance: '6.9 km', driveTime: 'about 18 min by car' },
     { number: '07', name: 'Ayodhya Airport', time: 'Approx. 4.2 km from hotel', destination: 'Maharishi Valmiki International Airport Ayodhya Dham', distance: '4.2 km', driveTime: 'check the live road route' },
   ]
 
