@@ -10,11 +10,11 @@
     "optimize:images": "node scripts/optimize-images.mjs"
   },
   "dependencies": {
-    "@upstash/redis": "^1.39.0",
     "@vitejs/plugin-react": "latest",
     "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "redis": "^6.2.1",
     "vite": "latest"
   },
   "devDependencies": {
