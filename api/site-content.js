@@ -395,7 +395,7 @@ export default async function handler(
     /*
      * Require a reasonably strong owner password.
      */
-    if (expectedOwnerKey.length < 16) {
+    if (expectedOwnerKey.length < 18) {
       return response.status(503).json({
         error:
           'owner_access_not_configured',
